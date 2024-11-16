@@ -1,0 +1,120 @@
+:root {
+  line-height: 1.5;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #181A20;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: "Lexend Deca", "Inter", sans-serif;
+  position: relative;
+  width: 100%;
+  /* height: 100%; */
+}
+
+body {
+  margin: 0;
+  display: flex;
+  /* place-items: center; */
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #181A20;
+  color: #F8F8F8;
+}
+
+.container {
+  width: 80%;
+}
+
+@media (max-width: 1199.98px) {
+.container {
+    width: 90%;
+}
+}
+
+@media (max-width: 991.98px) {
+.container {
+    width: 95%;
+}
+}
+
+@media (max-width: 767.98px) {
+.container {
+    width: 98%;
+}
+}
+
+@media (max-width: 575.98px) {
+.container {
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px; 
+}
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 0;
+  line-height: 1.6;
+}
+
+p {
+  margin: 0;
+}
+
+ul,
+li {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+button {
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  font-family: inherit;
+}
+
+#app {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0rem;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #181A20;
+    background-color: #181A20;
+  }
+}
+
+.dropdown-item {
+  font-weight: 700;
+}
+
+.modal-backdrop {
+  display: none;
+}
+
+.modal {
+  z-index: 10;
+}
