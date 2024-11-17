@@ -4,117 +4,141 @@
         <p class="fw-bold fs-3">Notifications</p>
     </div>
 		<div class="winnie-message-table">
-    <!-- 表首 -->
-    <div class="tabs web-border-bottom py-3 d-none d-sm-block">
-      <span class="tab ps-4" v-for="tab in tabs" :key="tab">{{ tab }}</span>
-    </div>
+      <!-- 表首 -->
+      <div class="tabs web-border-bottom py-3 d-none d-sm-block">
+        <span v-for="tab in tabs" :key="tab.id" :class="['tab ps-4 tab-button', {'active': tab.id === activeTab } ]" 
+          @click="setActiveTab(tab.id)">
+          {{ tab.name }}
+        </span>
+      </div>
 
-    <!-- 表格內容 -->
-    <div class="message-table-info">
-      <div
-        v-for="(message, index) in messages"
-        :key="index"
-        class="message-row web-border-bottom"
-      >
-        <!-- 手機版 -->
-        <div class="message-row-mobile d-md-none p-2">
-          <div class="message-header">
-            <span class="title">{{ message.title }}</span>
+      <!-- 表格內容 -->
+      <div class="message-table-info">
+        <div
+          v-for="item in filteredItems" :key="item.id" class="message-row web-border-bottom"
+        >
+          <!-- 手機版 -->
+          <div class="message-row-mobile d-md-none p-2">
+            <div class="message-header">
+              <span class="title">{{ item.notificationType }} Successful</span>
+            </div>
+            <div class="message-detail">You have successfully {{ item.notificationType }} {{ item.amount }} {{ item.symbol }}.</div>
+            <div class="date-link date mt-3">
+              {{ formatDate(item.notificationDateTime) }}
+                <a class="ms-2" href="#"><font-awesome-icon icon="fa-solid fa-angle-right fs-4"/></a>
+            </div>
           </div>
-          <div class="message-detail">{{ message.details }}</div>
-          <div class="date-link date mt-3">
-              {{ message.date }}
-              <a class="ms-2" href="#"><font-awesome-icon icon="fa-solid fa-angle-right fs-4"/></a>
-          </div>
-        </div>
 
-        <!-- 桌面版 -->
-        <div class="message-row-desktop d-none d-md-flex flex-column px-4">
-					<div class="d-flex flex-row justify-content-between w-100">
-						<div class="message-left">
-            <div class="new-message-dot"></div>
-            <span class="title">{{ message.title }}</span>
+          <!-- 桌面版 -->
+          <div class="message-row-desktop d-none d-md-flex flex-column px-4">
+            <div class="d-flex flex-row justify-content-between w-100">
+              <div class="message-left">
+              <div class="new-message-dot"></div>
+              <span class="title">{{ item.notificationType }} Successful</span>
+            </div>
+            <div class="message-right">
+              <span class="date">{{ formatDate(item.notificationDateTime) }}</span>
+              <a href="#"><font-awesome-icon icon="fa-solid fa-angle-right fs-4"/></a>
+            </div>
+            </div>
+            <div class="message-detail">You have successfully {{ item.notificationType }} {{ item.amount }} {{ item.symbol }}.</div>
           </div>
-          <div class="message-right">
-            <span class="date">{{ message.date }}</span>
-            <a href="#"><font-awesome-icon icon="fa-solid fa-angle-right fs-4"/></a>
-          </div>
-					</div>
-					<div class="message-detail">{{ message.details }}</div>
         </div>
       </div>
-		</div>
 
-		<!-- 表尾 -->
-    <!-- 分頁組件 (手機版) -->
-    <div class="pagination d-md-none">
-    </div>
+      <!-- 表尾 -->
+      <!-- 分頁組件 (手機版) -->
+      <div class="pagination d-md-none">
+      </div>
 
-    <!-- 表尾 (桌面版) -->
-    <div class="view-more d-none d-md-block py-3">
-      <a href="#">View More</a>
-    </div>
+      <!-- 表尾 (桌面版) -->
+      <div class="view-more d-none d-md-block py-3">
+        <a href="#">View More</a>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, computed } from "vue";
+import modules from "@/services/modules";
+import dayjs from "dayjs";
 
-const tabs = ref(["All", "Deposit", "Withdraw", "Reward", "Game"]);
-const messages = ref([
-  {
-    title: "Withdrawal Successful",
-    date: "10/28/2024 11:05:27",
-    details: "You have successfully withdrawn 200 USDT."
-  },
-  {
-    title: "Withdrawal Successful",
-    date: "10/28/2024 11:05:27",
-    details: "You have successfully withdrawn 200 USDT."
-  },
-	{
-    title: "Withdrawal Successful",
-    date: "10/28/2024 11:05:27",
-    details: "You have successfully withdrawn 200 USDT."
-  },
-	{
-    title: "Withdrawal Successful",
-    date: "10/28/2024 11:05:27",
-    details: "You have successfully withdrawn 200 USDT."
-  },
-	{
-    title: "Withdrawal Successful",
-    date: "10/28/2024 11:05:27",
-    details: "You have successfully withdrawn 200 USDT."
-  },
-	{
-    title: "Withdrawal Successful",
-    date: "10/28/2024 11:05:27",
-    details: "You have successfully withdrawn 200 USDT."
-  },
-]);
+const {
+  account: { getNotification },
+} = modules;
+
+const formatDate = (isoDateString) =>
+  dayjs(isoDateString).format("MM/DD/YYYY HH:mm:ss")
+
+// 調用 API 獲取歷史資料
+const fetchPageData = async (pageIndex) => {
+  try {
+    const res = await getNotification(
+      notificationTypeEnum,
+      itemsPerPage.value,
+      pageIndex
+    );
+
+    if (res && res.data.data) {
+      messageData.value = res.data.data.items;
+      totalData.value = res.data.data.total; // 總筆數
+    } else {
+      console.error("Failed to retrieve valid history data");
+    }
+  } catch (error) {
+    console.error("Fetching the history failed：", error);
+  }
+};
+const itemsPerPage = ref(10); // 每頁顯示 10 筆
+const notificationTypeEnum = "All";
+const messageData = ref([]);
+const totalData = ref(0); // 總項目數
+const activeTab = ref('All'); 
+
+const tabs = ref([
+  { id: 'All', name: 'All' },
+  { id: 'Deposit', name: 'Deposit' },
+  { id: 'Withdraw', name: 'Withdraw' },
+  { id: 'Reward', name: 'Reward' },
+  { id: 'RewardWinner', name: 'Game' }
+])
+
+const setActiveTab = (tabId) => {
+  activeTab.value = tabId;
+};
+
+const filteredItems = computed(() => {
+  if (activeTab.value === 'All') {
+    return messageData.value;
+  }
+  console.log(activeTab.value, 'activeTab.value')
+  return messageData.value.filter(item => item.notificationType === activeTab.value);
+});
+
+onMounted(async () => {
+  await Promise.all(
+    [fetchPageData(1)],
+    // fetchTabData(0)
+  );
+});
 </script>
 
-<style scoped>
+<style lang='scss' scoped>
 .container {
 	max-width: 934px;
-}
-
-.tabs {
-  display: flex;
-}
-
-.tab {
-  padding: 8px 12px;
-  background-color: transparent;
-	color: #F8F8F8;
-  cursor: pointer;
-}
-
-
-.tab:hover, .tab:active {
-	color: #FCD535;
+  .tabs {
+    display: flex;
+    .tab {
+      padding: 8px 12px;
+      background-color: transparent;
+      color: #F8F8F8;
+      cursor: pointer;
+      &:hover, &.active {
+        color: #FCD535;
+      }
+    }
+  }
 }
 
 .winnie-message-table {
@@ -126,7 +150,7 @@ const messages = ref([
 
 @media (min-width: 575.98px) {
   .winnie-message-table {
-	border-radius: 15px;
+    border-radius: 15px;
   }
 }
 
@@ -184,10 +208,9 @@ const messages = ref([
   justify-content: space-between;
   align-items: center;
   padding: 12px 0;
-}
-
-.message-row-desktop:hover {
-	background-color: #414D5A;
+  &:hover {
+    background-color: #414D5A;
+  }
 }
 
 .message-left {
@@ -223,11 +246,10 @@ const messages = ref([
 
 .view-more {
   text-align: center;
-}
-
-.view-more a {
-  color: #FCD535;
-  text-decoration: none;
+  a {
+    color: #FCD535;
+    text-decoration: none;
+  }
 }
 
 .message-row-desktop {

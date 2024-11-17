@@ -59,6 +59,15 @@ const account = {
       newPassword,
       code,
     }),
+  
+  getNotification: (notificationTypeEnum, pageSize, pageIndex) =>
+    apiClient.get(
+      `/Account/Notification/${notificationTypeEnum}/${pageSize}/${pageIndex}`
+    ),
+  
+  notificationRead: (id) => 
+    apiClient.put("/Account/NotificationRead", { id }
+  ),
 };
 
 // user module
